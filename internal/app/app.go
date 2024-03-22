@@ -1,24 +1,18 @@
 package app
 
 import (
-	"fmt"
 	"food_delivery/internal/config"
 	"log"
 )
 
-func Run() {
-	// TODO: init config: json
+type App struct {
+	Cfg *config.Config
+	Log *log.Logger
+}
 
-	config := config.New()
-	if err := config.InitConfig("config.json", config); err != nil {
-		log.Fatal("ERROR: %v", err)
+func New(cfg *config.Config, logger *log.Logger) *App {
+	return &App{
+		Cfg: cfg,
+		Log: logger,
 	}
-
-	fmt.Println("INIT CONFIG")
-
-	// TODO: init storage: sqlite3
-
-	// TODO : init router
-
-	// TODO: run server
 }

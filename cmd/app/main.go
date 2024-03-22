@@ -1,7 +1,9 @@
 package main
 
-import "food_delivery/internal/app"
+import (
+	apprun "food_delivery/internal/appRun"
+)
 
 func main() {
-	app.Run()
+	apprun.Run()
 }

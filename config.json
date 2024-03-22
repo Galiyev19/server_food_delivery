@@ -1,5 +1,7 @@
 {
     "addr": "8080",
     "store_path": "./data/data.db",
-    "store_driver": "sqlite3"
+    "store_driver": "sqlite3",
+    "environment": "development",
+    "version": "1.0.0"
 }
