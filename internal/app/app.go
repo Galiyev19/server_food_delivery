@@ -6,13 +6,13 @@ import (
 )
 
 type App struct {
-	Cfg *config.Config
-	Log *log.Logger
+	Cfg    *config.Config
+	Logger *log.Logger
 }
 
 func New(cfg *config.Config, logger *log.Logger) *App {
 	return &App{
-		Cfg: cfg,
-		Log: logger,
+		Cfg:    cfg,
+		Logger: logger,
 	}
 }
