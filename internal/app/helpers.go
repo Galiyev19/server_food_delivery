@@ -54,15 +54,20 @@ func (app *App) readJson(w http.ResponseWriter, r *http.Request, dst interface{}
 		var invalidUnmarshalError *json.InvalidUnmarshalError
 
 		switch {
+		// JSON has badlu formatted
+		// return error
 		case errors.As(err, &syntaxError):
 			return fmt.Errorf("body contains badly-formed JSON (at character %d)", syntaxError.Offset)
 		case errors.Is(err, io.ErrUnexpectedEOF):
 			return errors.New("body contains badly-formed JSON")
+		// In JSON if incorrect field or type character
+		// return error
 		case errors.As(err, &unmarshalTypeError):
 			if unmarshalTypeError.Field != "" {
 				return fmt.Errorf("body contains incorrecrt JSON type for field %q", unmarshalTypeError.Field)
 			}
 			return fmt.Errorf("body contains incorrect JSON type (at character %d", unmarshalTypeError.Offset)
+		// JSON is empty
 		case errors.Is(err, io.EOF):
 			return errors.New("body must not be empty")
 		case errors.As(err, &invalidUnmarshalError):

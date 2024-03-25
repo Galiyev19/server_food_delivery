@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"food_delivery/internal/data"
+	"food_delivery/internal/validator"
 	"net/http"
 	"time"
 
@@ -43,14 +44,15 @@ func (app *App) getProductByid(w http.ResponseWriter, r *http.Request) {
 		Count: 120,
 	}
 	products := data.Products{
-		ID:       id,
-		CreadAt:  time.Now(),
-		Title:    "test",
-		Category: "test",
-		Price:    100.0,
-		Image:    "test",
-		Rating:   rate,
-		Version:  1,
+		ID:          id,
+		CreadAt:     time.Now(),
+		Title:       "test",
+		Description: "Test test test test test",
+		Category:    "test",
+		Price:       100.0,
+		Image:       "test",
+		Rating:      rate,
+		Version:     1,
 	}
 
 	err = app.writeJson(w, http.StatusOK, products, nil)
@@ -66,22 +68,41 @@ func (app *App) createProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	type product struct {
-		Title    string `json:"title"`
-		Category string `json:"category"`
-		Price    int64  `json:"price"`
-		Image    string `json:"image"`
-		Rating   rate   `json:"rating"`
+		Title       string `json:"title"`
+		Description string `json:"description"`
+		Category    string `json:"category"`
+		Price       int64  `json:"price"`
+		Image       string `json:"image"`
+		Rating      rate   `json:"rating"`
 	}
 
-	var prod product
+	var p product
 
-	err := app.readJson(w, r, &prod)
+	err := app.readJson(w, r, &p)
 	if err != nil {
 		app.errorResponse(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	fmt.Fprintf(w, "%+v\n", prod)
+	v := validator.New()
+
+	// Copy the values from the input struct to a new Products struct.
+	products := &data.Products{
+		Title:       p.Title,
+		Description: p.Description,
+		Category:    p.Category,
+		Price:       p.Price,
+		Image:       p.Image,
+		Rating:      data.Rating(p.Rating),
+	}
+
+	// Call the ValidateMovie() function and return a response containing the errors if any of the checks fail.
+	if data.ValidatorProduct(v, products); !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	fmt.Fprintf(w, "%+v\n", p)
 }
 
 func (app *App) showCategoryByName(w http.ResponseWriter, r *http.Request) {
