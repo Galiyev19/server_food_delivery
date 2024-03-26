@@ -3,12 +3,10 @@ package apprun
 import (
 	"food_delivery/internal/app"
 	"food_delivery/internal/config"
-	"food_delivery/internal/data"
 	"food_delivery/internal/server"
-	"food_delivery/internal/storage/sqlite"
+	"food_delivery/internal/storage"
 	"log"
 	"os"
-	"time"
 )
 
 func Run() {
@@ -17,31 +15,15 @@ func Run() {
 		log.Fatalf("ERROR: %v", err)
 	}
 
-	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
-
-	app := app.New(cfg, logger)
-
-	storage, err := sqlite.New(app.Cfg.StoreDriver, app.Cfg.StorePath, app.Cfg.MigrationPath)
+	db, err := storage.New(cfg.StoreDriver, cfg.StorePath, cfg.MigrationPath)
 	if err != nil {
 		log.Fatalf("ERROR: %v", err)
 	}
 
-	rate := data.Rating{
-		Rate:  4.5,
-		Count: 120,
-	}
-	products := data.Products{
-		ID:          1,
-		CreadAt:     time.Now(),
-		Title:       "test",
-		Description: "Test test test test test",
-		Category:    "test",
-		Price:       100.0,
-		Image:       "test",
-		Rating:      rate,
-	}
+	store := storage.NewStorage(db)
+	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
 
-	_, err = storage.SaveProduct(products)
-
+	app := app.New(cfg, logger, store)
+	
 	log.Fatal(server.RunSever(app.Routes(), app.Cfg.Address))
 }

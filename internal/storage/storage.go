@@ -1,8 +1,22 @@
 package storage
 
-import "errors"
+import "database/sql"
 
-var (
-	ErrUrlNotFound = errors.New("url not found")
-	ErrUrlExist    = errors.New("url exist")
-)
+type Store interface {
+	// Products
+	CreaeProducts() error
+}
+
+type Storage struct {
+	DB *sql.DB
+}
+
+func NewStorage(sqlStorage *SqlStorage) *Storage {
+	return &Storage{
+		DB: sqlStorage.db,
+	}
+}
+
+func (s *Storage) CreaeProducts() error {
+	return nil
+}

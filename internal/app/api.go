@@ -2,10 +2,9 @@ package app
 
 import (
 	"fmt"
-	"food_delivery/internal/data"
 	"food_delivery/internal/validator"
+	"food_delivery/models"
 	"net/http"
-	"time"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -39,23 +38,9 @@ func (app *App) getProductByid(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rate := data.Rating{
-		Rate:  4.5,
-		Count: 120,
-	}
-	products := data.Products{
-		ID:          id,
-		CreadAt:     time.Now(),
-		Title:       "test",
-		Description: "Test test test test test",
-		Category:    "test",
-		Price:       100.0,
-		Image:       "test",
-		Rating:      rate,
-		Version:     1,
-	}
+	fmt.Fprintf(w, "ID %d", id)
 
-	err = app.writeJson(w, http.StatusOK, products, nil)
+	err = app.writeJson(w, http.StatusOK, nil, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
@@ -87,17 +72,17 @@ func (app *App) createProduct(w http.ResponseWriter, r *http.Request) {
 	v := validator.New()
 
 	// Copy the values from the input struct to a new Products struct.
-	products := &data.Products{
+	products := &models.Products{
 		Title:       p.Title,
 		Description: p.Description,
 		Category:    p.Category,
 		Price:       p.Price,
 		Image:       p.Image,
-		Rating:      data.Rating(p.Rating),
+		Rating:      models.Rating(p.Rating),
 	}
 
 	// Call the ValidateMovie() function and return a response containing the errors if any of the checks fail.
-	if data.ValidatorProduct(v, products); !v.Valid() {
+	if models.ValidatorProduct(v, products); !v.Valid() {
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}

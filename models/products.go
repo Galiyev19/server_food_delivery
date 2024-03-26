@@ -1,4 +1,4 @@
-package data
+package models
 
 import (
 	"food_delivery/internal/validator"
