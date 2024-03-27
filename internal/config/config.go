@@ -8,10 +8,11 @@ import (
 )
 
 type Config struct {
-	Address       string `json:"addr"`
+	Port          string `json:"port"`
 	StorePath     string `json:"store_path"`
 	StoreDriver   string `json:"store_driver"`
 	MigrationPath string `json:"migration_path"`
+	InitTest      string `json:"init_test"`
 	Enviroment    string `json:"environment"`
 	Version       string `json:"version"`
 }

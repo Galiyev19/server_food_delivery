@@ -1,8 +1,9 @@
 {
-    "addr": "8080",
+    "port": "8080",
     "store_path": "./internal/data/data.db",
     "store_driver": "sqlite3",
     "migration_path": "./migration/migration.sql",
+    "init_test": "./migration/init.sql",
     "environment": "development",
     "version": "1.0.0"
 }

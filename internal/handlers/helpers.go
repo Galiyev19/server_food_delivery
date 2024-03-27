@@ -1,4 +1,4 @@
-package service
+package handlers
 
 import (
 	"encoding/json"
@@ -11,7 +11,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func readIDParam(r *http.Request) (int64, error) {
+func (h *Handler) readIDParam(r *http.Request) (int64, error) {
 	params := httprouter.ParamsFromContext(r.Context())
 
 	id, err := strconv.ParseInt(params.ByName("id"), 10, 64)
@@ -21,9 +21,7 @@ func readIDParam(r *http.Request) (int64, error) {
 	return id, nil
 }
 
-type envelope map[string]interface{}
-
-func writeJson(w http.ResponseWriter, status int, data interface{}, headers http.Header) error {
+func (h *Handler) writeJson(w http.ResponseWriter, status int, data interface{}, headers http.Header) error {
 	js, err := json.MarshalIndent(data, "", "\t")
 	if err != nil {
 		return err
@@ -42,7 +40,7 @@ func writeJson(w http.ResponseWriter, status int, data interface{}, headers http
 	return nil
 }
 
-func readJson(w http.ResponseWriter, r *http.Request, dst interface{}) error {
+func (h *Handler) readJson(w http.ResponseWriter, r *http.Request, dst interface{}) error {
 	err := json.NewDecoder(r.Body).Decode(dst)
 	if err != nil {
 		// There is a syntax problem with the JSON being decoded.

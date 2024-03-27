@@ -6,8 +6,8 @@ import (
 )
 
 type Rating struct {
-	Rate  float64
-	Count int64
+	Rate  float64 `json:"rate"`
+	Count int64   `json:"count"`
 }
 
 type Products struct {
