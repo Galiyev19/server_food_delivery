@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"food_delivery/internal/models"
+	"food_delivery/internal/validator"
 	"net/http"
 )
 
@@ -26,11 +27,33 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	v := validator.New()
+
+	if models.ValidateUser(v, &user); !v.Valid() {
+		h.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
 	err = h.service.User.CreateUser(user)
 	if err != nil {
 		h.errorResponse(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	err = h.writeJson(w, http.StatusOK, envelope{"user": user}, nil)
+	userResponse := models.UserResponse{
+		UserName: user.UserName,
+		Email:    user.Email,
+	}
+
+	err = h.writeJson(w, http.StatusOK, envelope{"user": userResponse}, nil)
+}
+
+func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
+	username, err := h.readStrParam(r)
+	if err != nil {
+		h.notFoundResponse(w, r)
+		return
+	}
+
+	
 }

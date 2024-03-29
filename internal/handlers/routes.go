@@ -11,6 +11,7 @@ func (h *Handler) Routes() *httprouter.Router {
 
 	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", h.healthCheck)
 	router.HandlerFunc(http.MethodPost, "/v1/user", h.CreateUser)
+	router.HandlerFunc(http.MethodPatch, "/v1/user/:username", h.UpdateUser)
 
 	return router
 }

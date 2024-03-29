@@ -4,8 +4,6 @@ import (
 	"net/http"
 )
 
-type envelope map[string]interface{}
-
 func (h *Handler) healthCheck(w http.ResponseWriter, r *http.Request) {
 	env := envelope{
 		"status": "available",

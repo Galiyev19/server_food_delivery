@@ -18,8 +18,8 @@ func NewUserRepository(db *sql.DB) *UserRepository {
 
 type IUserRepository interface {
 	CreateUser(user models.User) error
-	GetUserById() error
-	UpdateUser(user models.User) error
+	GetUserByEmail(email string) (models.User, error)
+	UpdateUser(username, email string) error
 }
 
 func (u *UserRepository) CreateUser(user models.User) error {
@@ -31,10 +31,19 @@ func (u *UserRepository) CreateUser(user models.User) error {
 	return nil
 }
 
-func (u *UserRepository) GetUserById() error {
-	return nil
+func (u *UserRepository) GetUserByEmail(email string) (models.User, error) {
+	var user models.User
+	stmt := `SELECT * FROM users WHERE email = ? `
+	if err := u.db.QueryRow(stmt, email).Scan(&user.ID, &user.UserName, &user.Email, &user.Password); err != nil {
+		return models.User{}, err
+	}
+	return user, nil
 }
 
-func (u *UserRepository) UpdateUser(user models.User) error {
+func (u *UserRepository) UpdateUser(username, email string) error {
+	stmt := `UPDATE users SET username = ?. email = ? WHERE username = ?`
+	if _, err := u.db.Exec(stmt, username, email); err != nil {
+		return fmt.Errorf("UPDATE USER %v", err)
+	}
 	return nil
 }

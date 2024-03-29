@@ -6,6 +6,8 @@ import (
 	"log"
 )
 
+type envelope map[string]interface{}
+
 type Handler struct {
 	service *service.Service
 	cfg     *config.Config
