@@ -23,8 +23,8 @@ type IUserRepository interface {
 }
 
 func (u *UserRepository) CreateUser(user models.User) error {
-	stmt := `INSERT INTO users (id, username, email, password) 
-		VALUES (?, ?, ?, ?);`
+	stmt := `INSERT INTO users (id, username, email, password,created_at) 
+		VALUES (?, ?, ?, ?, datetime('now', 'localtime'));`
 	if _, err := u.db.Exec(stmt, user.ID, user.UserName, user.Email, user.Password); err != nil {
 		return fmt.Errorf("u.db.Exec: %v", err)
 	}
@@ -33,9 +33,9 @@ func (u *UserRepository) CreateUser(user models.User) error {
 
 func (u *UserRepository) GetUserByEmail(email string) (models.User, error) {
 	var user models.User
-	stmt := `SELECT * FROM users WHERE email = ? `
+	stmt := `SELECT * FROM users WHERE email = ?`
 	if err := u.db.QueryRow(stmt, email).Scan(&user.ID, &user.UserName, &user.Email, &user.Password); err != nil {
-		return models.User{}, err
+		return models.User{}, fmt.Errorf("NOT FIND USER")
 	}
 	return user, nil
 }

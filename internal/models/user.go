@@ -16,6 +16,7 @@ type User struct {
 type UserResponse struct {
 	UserName string `json:"username"`
 	Email    string `json:"email"`
+	Token    string `json:"token"`
 }
 
 func ValidateEmail(v *validator.Validator, email string) {

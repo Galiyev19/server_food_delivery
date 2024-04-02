@@ -24,30 +24,39 @@ type IUserService interface {
 	GetUserByEmail(email string) (models.User, error)
 }
 
+// Create new user and save in db
 func (u *UserService) CreateUser(user models.User) error {
-	id := uuid.New()
+	id := uuid.New()                                 // generate uuid
+	hashPassword, err := HashPassword(user.Password) // hash password
+	if err != nil {
+		return fmt.Errorf("%v", err)
+	}
 	userModel := models.User{
 		ID:       id.String(),
 		UserName: user.UserName,
 		Email:    user.Email,
-		Password: user.Password,
+		Password: hashPassword,
 	}
 
-	user, _ = u.UserRepository.GetUserByEmail(user.Email)
-	if user.Email == user.Email {
+	userFromDB, _ := u.UserRepository.GetUserByEmail(user.Email) // check this email is exist
+
+	if userFromDB.Email == user.Email {
 		return fmt.Errorf("User this email already exist")
 	}
 
+	// create new user
 	if err := u.UserRepository.CreateUser(userModel); err != nil {
-		return fmt.Errorf("u.UserRepository.CreateUser: %v", err)
+		return fmt.Errorf("Service error create user: %v", err)
 	}
 	return nil
 }
 
+// get user by email
 func (u *UserService) GetUserByEmail(email string) (models.User, error) {
 	return u.UserRepository.GetUserByEmail(email)
 }
 
+// update user info
 func (u *UserService) UpdateUser(username, email string) error {
 	user, err := u.UserRepository.GetUserByEmail(username)
 	if err != nil {

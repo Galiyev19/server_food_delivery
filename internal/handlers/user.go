@@ -1,12 +1,18 @@
 package handlers
 
 import (
+	"fmt"
 	"food_delivery/internal/models"
 	"food_delivery/internal/validator"
 	"net/http"
 )
 
 func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		h.methodNotAllowed(w, r)
+		return
+	}
+
 	var input struct {
 		ID       string `json:"id"`
 		UserName string `json:"username"`
@@ -55,5 +61,5 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	
+	fmt.Println(username)
 }
