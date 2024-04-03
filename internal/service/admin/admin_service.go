@@ -21,15 +21,16 @@ func NewAdminService(adminRepo admin.IAdminRepository) *AdminService {
 
 type IAdminService interface {
 	CreateAdmin(admin models.Admin) error
-	GetAdminByEmail(email, password string) (models.Admin, error)
+	GetAdminByEmail(email, password string) (models.Token, error)
 }
 
 func (a *AdminService) CreateAdmin(admin models.Admin) error {
-	id := helpers.GenerateId()
-	hashPass, err := helpers.HashPassword(admin.Password)
+	id := helpers.GenerateId()                            // generate id
+	hashPass, err := helpers.HashPassword(admin.Password) // hashed password
 	if err != nil {
 		return fmt.Errorf("Create admin hash password")
 	}
+
 	adminModel := models.Admin{
 		ID:       id.String(),
 		Email:    admin.Email,
@@ -42,15 +43,24 @@ func (a *AdminService) CreateAdmin(admin models.Admin) error {
 	return nil
 }
 
-func (a *AdminService) GetAdminByEmail(email, password string) (models.Admin, error) {
+func (a *AdminService) GetAdminByEmail(email, password string) (models.Token, error) {
 	admin, err := a.AdminRepository.GetAdminByEmail(email)
 	if err != nil {
-		return models.Admin{}, fmt.Errorf("service error not find admin %v", err)
+		return models.Token{}, fmt.Errorf("service error not find admin %v", err)
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(admin.Password), []byte(password))
 	if err != nil {
-		return models.Admin{}, fmt.Errorf("wrong password")
+		return models.Token{}, fmt.Errorf("wrong password")
 	}
-	return admin, nil
+
+	tokenString, err := helpers.GenerateToken(admin.Email)
+	if err != nil {
+		return models.Token{}, err
+	}
+	claims := models.Token{
+		UserName: admin.Email,
+		Token:    tokenString,
+	}
+	return claims, nil
 }
