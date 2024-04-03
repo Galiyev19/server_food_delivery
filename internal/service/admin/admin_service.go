@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"food_delivery/internal/models"
 	"food_delivery/internal/repository/admin"
+	"food_delivery/internal/service/helpers"
 
-	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type AdminService struct {
@@ -20,16 +21,19 @@ func NewAdminService(adminRepo admin.IAdminRepository) *AdminService {
 
 type IAdminService interface {
 	CreateAdmin(admin models.Admin) error
-	GetAdminByEmail(email string) (models.Admin, error)
+	GetAdminByEmail(email, password string) (models.Admin, error)
 }
 
 func (a *AdminService) CreateAdmin(admin models.Admin) error {
-	id := uuid.New()
-
+	id := helpers.GenerateId()
+	hashPass, err := helpers.HashPassword(admin.Password)
+	if err != nil {
+		return fmt.Errorf("Create admin hash password")
+	}
 	adminModel := models.Admin{
 		ID:       id.String(),
 		Email:    admin.Email,
-		Password: admin.Password,
+		Password: hashPass,
 	}
 
 	if err := a.AdminRepository.CreateAdmin(adminModel); err != nil {
@@ -38,8 +42,15 @@ func (a *AdminService) CreateAdmin(admin models.Admin) error {
 	return nil
 }
 
-func (a *AdminService) GetAdminByEmail(email string) (models.Admin, error) {
-	var admin models.Admin
+func (a *AdminService) GetAdminByEmail(email, password string) (models.Admin, error) {
+	admin, err := a.AdminRepository.GetAdminByEmail(email)
+	if err != nil {
+		return models.Admin{}, fmt.Errorf("service error not find admin %v", err)
+	}
 
+	err = bcrypt.CompareHashAndPassword([]byte(admin.Password), []byte(password))
+	if err != nil {
+		return models.Admin{}, fmt.Errorf("wrong password")
+	}
 	return admin, nil
 }

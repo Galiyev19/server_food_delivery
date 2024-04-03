@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"food_delivery/internal/models"
 	"food_delivery/internal/repository/user"
-
-	"github.com/google/uuid"
+	"food_delivery/internal/service/helpers"
 )
 
 type UserService struct {
@@ -26,11 +25,12 @@ type IUserService interface {
 
 // Create new user and save in db
 func (u *UserService) CreateUser(user models.User) error {
-	id := uuid.New()                                 // generate uuid
-	hashPassword, err := HashPassword(user.Password) // hash password
+	id := helpers.GenerateId()                               // generate uuid
+	hashPassword, err := helpers.HashPassword(user.Password) // hash password
 	if err != nil {
 		return fmt.Errorf("%v", err)
 	}
+	
 	userModel := models.User{
 		ID:       id.String(),
 		UserName: user.UserName,

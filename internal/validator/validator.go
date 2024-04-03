@@ -1,6 +1,9 @@
 package validator
 
-import "regexp"
+import (
+	"regexp"
+	"unicode/utf8"
+)
 
 type Validator struct {
 	Errors map[string]string
@@ -32,6 +35,11 @@ func (v *Validator) Check(ok bool, key, message string) {
 	if !ok {
 		v.AddError(key, message)
 	}
+}
+
+//
+func (v *Validator) MinChars(value string, n int) bool {
+	return utf8.RuneCountInString(value) >= n
 }
 
 // Validated email
