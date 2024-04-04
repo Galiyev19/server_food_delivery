@@ -4,6 +4,7 @@ import (
 	"food_delivery/internal/models"
 	"food_delivery/internal/validator"
 	"net/http"
+	"strings"
 )
 
 func (h *Handler) CreateAdmin(w http.ResponseWriter, r *http.Request) {
@@ -67,6 +68,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	err := h.readJson(w, r, &adminModel)
 	if err != nil {
 		h.errorResponse(w, r, http.StatusBadRequest, err.Error())
+		return
 	}
 
 	admin, err := h.service.Admin.GetAdminByEmail(adminModel.Email, adminModel.Password)
@@ -75,6 +77,24 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-
 	err = h.writeJson(w, http.StatusOK, envelope{"data": admin}, nil)
+}
+
+func (h *Handler) IdentityMe(w http.ResponseWriter, r *http.Request) {
+	header := r.Header.Get("authorization")
+	parts := strings.Split(header, " ")
+
+	data, err := h.service.Admin.IdentityMe(parts[1])
+	if err != nil {
+		h.errorResponse(w, r, 401, err.Error())
+		return
+	}
+
+	res := models.Response{
+		Email:     data.Email,
+		ExpiresAt: data.ExpiresAt,
+		IssuedAt:  data.IssuedAt,
+	}
+
+	err = h.writeJson(w, http.StatusOK, envelope{"data": res}, nil)
 }

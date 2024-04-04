@@ -24,15 +24,52 @@ func GenerateId() uuid.UUID {
 }
 
 func GenerateToken(email string) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256,
-		jwt.MapClaims{
-			"email":  email,
-			"expire": time.Now().Add(time.Hour * 24).Unix(),
-		})
+	expTime := time.Now().Add(time.Hour * 24)
+	expNumeric := jwt.NewNumericDate(expTime)
 
-	tokenString, err := token.SignedString(secretKey)
-	if err != nil {
-		return "", fmt.Errorf("Generate token %v ,", err)
+	claims := jwt.RegisteredClaims{
+		ExpiresAt: expNumeric,
+		IssuedAt:  jwt.NewNumericDate(time.Now()),
+		Subject:   email,
 	}
-	return tokenString, nil
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	return token.SignedString(secretKey)
+}
+
+func ParseToken(tokenString string) (jwt.MapClaims, error) {
+	// Парсим токен
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		// Здесь возвращаем секретный ключ для верификации подписи токена
+		return []byte(secretKey), nil
+	})
+	// Проверяем на ошибки при парсинге токена
+	if err != nil {
+		return nil, fmt.Errorf("Error parsing token: %v", err)
+	}
+
+	// Проверяем валидность токена
+	if !token.Valid {
+		return nil, fmt.Errorf("Invalid token")
+	}
+
+	// Извлекаем утверждения (claims) из токена
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return nil, fmt.Errorf("Error decoding claims")
+	}
+
+	return claims, nil
+}
+
+func ConvertToDate(numericTime float64) (time.Time, error) {
+	// numericTime, ok := data["exp"].(float64)
+	// if !ok {
+	// 	return time.Time{}, fmt.Errorf("Failed to convert exp to float64")
+	// }
+	seconds := int64(numericTime)
+	date := time.Unix(seconds, 0)
+
+	return date, nil
 }

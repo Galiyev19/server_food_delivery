@@ -18,7 +18,7 @@ func (h *Handler) Routes() http.Handler {
 	// Admin
 	router.HandlerFunc(http.MethodPost, "/v1/admin/sign-up", h.CreateAdmin)
 	router.HandlerFunc(http.MethodPost, "/v1/admin/sign-in", h.Login)
-
+	router.HandlerFunc(http.MethodGet, "/v1/admin/identity/me", h.IdentityMe)
 	corsHandler := corsHandler(router)
 
 	return corsHandler

@@ -22,6 +22,7 @@ func NewAdminService(adminRepo admin.IAdminRepository) *AdminService {
 type IAdminService interface {
 	CreateAdmin(admin models.Admin) error
 	GetAdminByEmail(email, password string) (models.Token, error)
+	IdentityMe(token string) (models.Response, error)
 }
 
 func (a *AdminService) CreateAdmin(admin models.Admin) error {
@@ -58,9 +59,34 @@ func (a *AdminService) GetAdminByEmail(email, password string) (models.Token, er
 	if err != nil {
 		return models.Token{}, err
 	}
+
+	fmt.Println(tokenString)
 	claims := models.Token{
 		UserName: admin.Email,
 		Token:    tokenString,
 	}
 	return claims, nil
+}
+
+func (a *AdminService) IdentityMe(token string) (models.Response, error) {
+	claims, err := helpers.ParseToken(token)
+	if err != nil {
+		return models.Response{}, fmt.Errorf("Identity me %v", err)
+	}
+
+	dateExp, err := helpers.ConvertToDate(claims["exp"].(float64))
+	if err != nil {
+		return models.Response{}, fmt.Errorf("Identity me %v", err)
+	}
+	dateIssued, err := helpers.ConvertToDate(claims["iat"].(float64))
+	if err != nil {
+		return models.Response{}, fmt.Errorf("Identity me %v", err)
+	}
+	data := models.Response{
+		Email:     claims["sub"].(string),
+		ExpiresAt: dateExp,
+		IssuedAt:  dateIssued,
+	}
+
+	return data, nil
 }
