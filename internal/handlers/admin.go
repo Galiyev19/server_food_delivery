@@ -90,11 +90,46 @@ func (h *Handler) IdentityMe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res := models.Response{
-		Email:     data.Email,
-		ExpiresAt: data.ExpiresAt,
-		IssuedAt:  data.IssuedAt,
+	err = h.writeJson(w, http.StatusOK, envelope{"data": data}, nil)
+}
+
+func (h *Handler) ChangePassword(w http.ResponseWriter, r *http.Request) {
+	// check token
+	auth := r.Header.Get("authorization")
+	parts := strings.Split(auth, " ")
+
+	_, err := h.service.Admin.IdentityMe(parts[1])
+	if err != nil {
+		h.errorResponse(w, r, 401, err.Error())
+		return
 	}
 
-	err = h.writeJson(w, http.StatusOK, envelope{"data": res}, nil)
+	// input data
+	var inp struct {
+		Email       string `json:"email"`
+		OldPassword string `json:"old_password"`
+		NewPassword string `json:"new_password"`
+	}
+
+	// read data json data
+	err = h.readJson(w, r, &inp)
+	if err != nil {
+		h.errorResponse(w, r, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	// check admin is exits in db
+	_, err = h.service.Admin.GetAdminInfo(inp.Email)
+	if err != nil {
+		h.errorResponse(w, r, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	err = h.service.Admin.ChangePassword(inp.Email, inp.OldPassword, inp.NewPassword)
+	if err != nil {
+		h.errorResponse(w, r, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	err = h.writeJson(w, http.StatusOK, envelope{"message": "password was changed"}, nil)
 }

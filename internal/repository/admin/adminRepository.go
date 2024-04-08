@@ -19,6 +19,7 @@ func NewAdminRepository(db *sql.DB) *AdminRepository {
 type IAdminRepository interface {
 	CreateAdmin(admin models.Admin) error
 	GetAdminByEmail(email string) (models.Admin, error)
+	ChangePassword(email, password string) error
 }
 
 // create new admin
@@ -41,4 +42,13 @@ func (a *AdminRepository) GetAdminByEmail(email string) (models.Admin, error) {
 		return models.Admin{}, fmt.Errorf("NOT FIND ADMIN THIS EMAIL %s -", email)
 	}
 	return admin, nil
+}
+
+// Update admin data
+func (a *AdminRepository) ChangePassword(email, password string) error {
+	stmt := `UPDATE admins SET password = ? WHERE email = ?`
+	if _, err := a.db.Exec(stmt, password, email); err != nil {
+		return fmt.Errorf("wrong password or email")
+	}
+	return nil
 }

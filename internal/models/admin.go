@@ -14,7 +14,7 @@ type Admin struct {
 
 type AdminResponse struct {
 	Email string
-	Token string
+	Token TokenResponse
 }
 
 func ValidAdmin(v *validator.Validator, a *Admin) {

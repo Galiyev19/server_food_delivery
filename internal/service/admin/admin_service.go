@@ -22,7 +22,9 @@ func NewAdminService(adminRepo admin.IAdminRepository) *AdminService {
 type IAdminService interface {
 	CreateAdmin(admin models.Admin) error
 	GetAdminByEmail(email, password string) (models.Token, error)
-	IdentityMe(token string) (models.Response, error)
+	IdentityMe(token string) (models.AdminResponse, error)
+	GetAdminInfo(email string) (models.AdminResponse, error)
+	ChangePassword(email, oldPassword, newPassword string) error
 }
 
 func (a *AdminService) CreateAdmin(admin models.Admin) error {
@@ -60,7 +62,6 @@ func (a *AdminService) GetAdminByEmail(email, password string) (models.Token, er
 		return models.Token{}, err
 	}
 
-	fmt.Println(tokenString)
 	claims := models.Token{
 		UserName: admin.Email,
 		Token:    tokenString,
@@ -68,25 +69,63 @@ func (a *AdminService) GetAdminByEmail(email, password string) (models.Token, er
 	return claims, nil
 }
 
-func (a *AdminService) IdentityMe(token string) (models.Response, error) {
+func (a *AdminService) IdentityMe(token string) (models.AdminResponse, error) {
 	claims, err := helpers.ParseToken(token)
 	if err != nil {
-		return models.Response{}, fmt.Errorf("Identity me %v", err)
+		return models.AdminResponse{}, fmt.Errorf("401 unauthorized")
 	}
 
 	dateExp, err := helpers.ConvertToDate(claims["exp"].(float64))
 	if err != nil {
-		return models.Response{}, fmt.Errorf("Identity me %v", err)
+		return models.AdminResponse{}, fmt.Errorf("Identity me %v", err)
 	}
+
 	dateIssued, err := helpers.ConvertToDate(claims["iat"].(float64))
 	if err != nil {
-		return models.Response{}, fmt.Errorf("Identity me %v", err)
+		return models.AdminResponse{}, fmt.Errorf("Identity me %v", err)
 	}
-	data := models.Response{
-		Email:     claims["sub"].(string),
+
+	tokenResponse := models.TokenResponse{
 		ExpiresAt: dateExp,
 		IssuedAt:  dateIssued,
 	}
 
+	data := models.AdminResponse{
+		Email: claims["sub"].(string),
+		Token: tokenResponse,
+	}
+
 	return data, nil
+}
+
+func (a *AdminService) GetAdminInfo(email string) (models.AdminResponse, error) {
+	data, err := a.AdminRepository.GetAdminByEmail(email)
+	if err != nil {
+		return models.AdminResponse{}, fmt.Errorf("Admin not found")
+	}
+
+	res := models.AdminResponse{
+		Email: data.Email,
+	}
+	return res, nil
+}
+
+func (a *AdminService) ChangePassword(email, oldPassword, newPassword string) error {
+	// get info current admin
+	admin, err := a.AdminRepository.GetAdminByEmail(email)
+	if err != nil {
+		return fmt.Errorf("service error not find admin %v", err)
+	}
+
+	// compare current password and password from input
+	err = bcrypt.CompareHashAndPassword([]byte(admin.Password), []byte(oldPassword))
+	if err != nil {
+		return fmt.Errorf("wrong password")
+	}
+	// changed password
+	err = a.AdminRepository.ChangePassword(email, newPassword)
+	if err != nil {
+		return err
+	}
+	return nil
 }

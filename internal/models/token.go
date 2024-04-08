@@ -7,8 +7,7 @@ type Token struct {
 	Token    string `json:"token"`
 }
 
-type Response struct {
-	Email     string    `json:"sub"`
+type TokenResponse struct {
 	ExpiresAt time.Time `json:"exp"`
 	IssuedAt  time.Time `json:"iat"`
 }

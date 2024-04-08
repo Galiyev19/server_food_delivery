@@ -25,14 +25,9 @@ func Run() {
 		log.Fatalf("ERROR: %v", err)
 	}
 
-	// err = sqlite.InsertTestDataInUser(cfg.StoreDriver, cfg.StorePath, cfg.InitTest)
-	// if err != nil {
-	// 	log.Fatalf("ERROR: %v", err)
-	// }
-
-	r := repository.NewRepository(db)
-	s := service.NewService(r)
-	h := handlers.NewHandler(s, cfg, logger)
+	r := repository.NewRepository(db)        // repo
+	s := service.NewService(r)               // service
+	h := handlers.NewHandler(s, cfg, logger) // handlers
 
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%s", cfg.Port),

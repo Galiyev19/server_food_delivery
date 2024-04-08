@@ -1,31 +1,32 @@
 package handlers
 
 import (
+	"food_delivery/internal/service/helpers"
 	"net/http"
-
-	"github.com/julienschmidt/httprouter"
 )
 
 const (
 	authorizationHeader = "Authorization"
 )
 
-func (h *Handler) userIdentity(next httprouter.Handle) httprouter.Handle {
-	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-		// Получаем значение заголовка Authorization
-		token := r.Header.Get(authorizationHeader)
-
-		// Проверяем наличие токена
-		if token == "" {
-			// Если токен отсутствует, возвращаем ошибку "Unauthorized"
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+// AuthMiddleware принимает обычную функцию
+func (h *Handler) AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Здесь вы можете добавить логику проверки авторизации
+		// Например, проверить наличие токена аутентификации в заголовке запроса
+		authToken := r.Header.Get("Authorization")
+		if authToken == "" {
+			h.errorResponse(w, r, http.StatusUnauthorized, "Not authorized")
 			return
 		}
 
-		// Здесь вы можете выполнить дополнительную проверку на валидность токена,
-		// например, проверить его наличие в базе данных или наличие подписи
+		_, err := helpers.ParseToken(authToken)
+		if err != nil {
+			h.errorResponse(w, r, http.StatusUnauthorized, err.Error())
+			return
+		}
 
-		// Вызываем основной обработчик
-		next(w, r, ps)
+		// Если пользователь авторизован, переходим к следующему обработчику
+		next(w, r)
 	}
 }
