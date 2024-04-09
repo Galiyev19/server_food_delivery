@@ -9,11 +9,8 @@ const (
 	authorizationHeader = "Authorization"
 )
 
-// AuthMiddleware принимает обычную функцию
 func (h *Handler) AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Здесь вы можете добавить логику проверки авторизации
-		// Например, проверить наличие токена аутентификации в заголовке запроса
 		authToken := r.Header.Get("Authorization")
 		if authToken == "" {
 			h.errorResponse(w, r, http.StatusUnauthorized, "Not authorized")
@@ -26,7 +23,6 @@ func (h *Handler) AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		// Если пользователь авторизован, переходим к следующему обработчику
 		next(w, r)
 	}
 }

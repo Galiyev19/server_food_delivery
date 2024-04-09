@@ -22,6 +22,9 @@ func (h *Handler) Routes() http.Handler {
 
 	router.HandlerFunc(http.MethodPatch, "/v1/update/admin", h.AuthMiddleware(h.ChangePassword))
 
+	// Product
+	router.HandlerFunc(http.MethodPost, "/v1/product", h.InsertProduct)
+
 	corsHandler := corsHandler(router)
 
 	return corsHandler
@@ -36,7 +39,7 @@ func corsHandler(next http.Handler) http.Handler {
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE ,OPTIONS")
 
 		// Разрешаем определенные заголовки запросов
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
 		// Если это предварительный запрос OPTIONS, просто отправляем пустой ответ
 		if r.Method == "OPTIONS" {

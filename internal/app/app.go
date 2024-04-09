@@ -14,13 +14,13 @@ import (
 )
 
 func Run() {
-	cfg := config.New()
+	cfg := config.New() // create cfg and init
 	if err := cfg.InitConfig("config.json", cfg); err != nil {
 		log.Fatalf("ERROR: %v", err)
 	}
 
-	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
-	db, err := sqlite.CreateSqlDB(cfg.StoreDriver, cfg.StorePath, cfg.MigrationPath)
+	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)                            // logger
+	db, err := sqlite.CreateSqlDB(cfg.StoreDriver, cfg.StorePath, cfg.MigrationPath) // init db
 	if err != nil {
 		log.Fatalf("ERROR: %v", err)
 	}

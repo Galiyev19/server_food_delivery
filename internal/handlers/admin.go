@@ -4,7 +4,6 @@ import (
 	"food_delivery/internal/models"
 	"food_delivery/internal/validator"
 	"net/http"
-	"strings"
 )
 
 func (h *Handler) CreateAdmin(w http.ResponseWriter, r *http.Request) {
@@ -81,10 +80,9 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) IdentityMe(w http.ResponseWriter, r *http.Request) {
-	header := r.Header.Get("authorization")
-	parts := strings.Split(header, " ")
+	token := r.Header.Get("authorization")
 
-	data, err := h.service.Admin.IdentityMe(parts[1])
+	data, err := h.service.Admin.IdentityMe(token)
 	if err != nil {
 		h.errorResponse(w, r, 401, err.Error())
 		return
@@ -95,10 +93,9 @@ func (h *Handler) IdentityMe(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	// check token
-	auth := r.Header.Get("authorization")
-	parts := strings.Split(auth, " ")
 
-	_, err := h.service.Admin.IdentityMe(parts[1])
+	token := r.Header.Get("authorization")
+	_, err := h.service.Admin.IdentityMe(token)
 	if err != nil {
 		h.errorResponse(w, r, 401, err.Error())
 		return
