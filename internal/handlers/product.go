@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"fmt"
 	"food_delivery/internal/models"
+	"food_delivery/internal/validator"
 	"net/http"
 )
 
@@ -33,5 +33,17 @@ func (h *Handler) InsertProduct(w http.ResponseWriter, r *http.Request) {
 		Rating:      rating,
 	}
 
-	fmt.Println(products)
+	err := h.readJson(w, r, &products)
+	if err != nil {
+		h.errorResponse(w, r, http.StatusBadGateway, err.Error())
+		return
+	}
+
+	v := validator.New()
+	if models.ValidatorProduct(v, &products); !v.Valid() {
+		h.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	err = h.writeJson(w, http.StatusOK, envelope{"message": "inserted"}, nil)
 }

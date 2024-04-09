@@ -1,6 +1,10 @@
 package products
 
-import "food_delivery/internal/repository/products"
+import (
+	"fmt"
+	"food_delivery/internal/models"
+	"food_delivery/internal/repository/products"
+)
 
 type ProductsService struct {
 	ProductRepository products.IProductRepository
@@ -13,12 +17,24 @@ func NewProductService(productRepo products.IProductRepository) *ProductsService
 }
 
 type IProductsService interface {
-	InsertProduct() error
+	InsertProduct(product models.Products) error
 	GetListProduct() error
 	GetProductById(id int) error
 }
 
-func (p *ProductsService) InsertProduct() error {
+func (p *ProductsService) InsertProduct(product models.Products) error {
+	producModel := models.Products{
+		Title:       product.Title,
+		Description: product.Description,
+		Category:    product.Category,
+		Price:       product.Price,
+		Image:       product.Image,
+		Rating:      product.Rating,
+	}
+
+	if err := p.ProductRepository.InsertProduct(producModel); err != nil {
+		return fmt.Errorf("Create product %v", err)
+	}
 	return nil
 }
 
