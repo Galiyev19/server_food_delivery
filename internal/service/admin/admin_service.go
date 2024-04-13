@@ -28,6 +28,12 @@ type IAdminService interface {
 }
 
 func (a *AdminService) CreateAdmin(admin models.Admin) (models.AdminResponse, error) {
+	checkEmail, _ := a.AdminRepository.GetAdminByEmail(admin.Email)
+	fmt.Println(checkEmail)
+	if checkEmail.Email == admin.Email {
+		return models.AdminResponse{}, fmt.Errorf("this email is used")
+	}
+
 	id := helpers.GenerateId()                            // generate id
 	hashPass, err := helpers.HashPassword(admin.Password) // hashed password
 	if err != nil {
