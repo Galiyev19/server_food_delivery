@@ -137,3 +137,18 @@ func (h *Handler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 
 	h.writeJson(w, http.StatusOK, envelope{"message": "success"}, nil)
 }
+
+func (h *Handler) GetProduct(w http.ResponseWriter, r *http.Request) {
+	id, err := h.readIDParam(r)
+	if err != nil {
+		h.errorResponse(w, r, http.StatusBadRequest, err)
+	}
+
+	product, err := h.service.Product.GetProductById(id)
+	if err != nil {
+		h.errorResponse(w, r, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	h.writeJson(w, http.StatusOK, envelope{"response": product}, nil)
+}

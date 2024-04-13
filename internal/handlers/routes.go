@@ -25,7 +25,8 @@ func (h *Handler) Routes() http.Handler {
 	// Product
 	router.HandlerFunc(http.MethodPost, "/v1/product", h.AuthMiddleware(h.InsertProduct))
 	router.HandlerFunc(http.MethodPatch, "/v1/product/:id", h.AuthMiddleware(h.UpdateProduct))
-	router.HandlerFunc(http.MethodDelete, "/v1/product/:id", h.DeleteProduct)
+	router.HandlerFunc(http.MethodDelete, "/v1/product/:id", h.AuthMiddleware(h.DeleteProduct))
+	router.HandlerFunc(http.MethodGet, "/v1/product/:id", h.AuthMiddleware(h.GetProduct))
 
 	corsHandler := corsHandler(router)
 
