@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"food_delivery/internal/models"
 	"food_delivery/internal/validator"
 	"net/http"
@@ -35,17 +36,17 @@ func (h *Handler) CreateAdmin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.service.Admin.CreateAdmin(adminModel)
+	adminResponse, err := h.service.Admin.CreateAdmin(adminModel)
 	if err != nil {
 		h.errorResponse(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	adminResponse := models.AdminResponse{
-		Email: adminModel.Email,
-	}
-
 	err = h.writeJson(w, http.StatusOK, envelope{"admin": adminResponse}, nil)
+	if err != nil {
+		h.errorResponse(w, r, http.StatusInternalServerError, err.Error())
+		return
+	}
 }
 
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
@@ -75,6 +76,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		h.errorResponse(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
+	fmt.Println(admin)
 
 	err = h.writeJson(w, http.StatusOK, envelope{"data": admin}, nil)
 }

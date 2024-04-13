@@ -11,10 +11,10 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func (h *Handler) readIDParam(r *http.Request) (int64, error) {
+func (h *Handler) readIDParam(r *http.Request) (int, error) {
 	params := httprouter.ParamsFromContext(r.Context())
 
-	id, err := strconv.ParseInt(params.ByName("id"), 10, 64)
+	id, err := strconv.Atoi(params.ByName("id"))
 	if err != nil || id < 1 {
 		return 0, errors.New("invalid id parametr")
 	}

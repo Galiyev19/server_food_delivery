@@ -19,7 +19,7 @@ type Products struct {
 	Price       float64   `json:"price"`
 	Image       string    `json:"image"`
 	Rating      Rating    `json:"rating"`
-	Version     int64     `json:"version"`
+	// Version int64 `json:"-"`
 }
 
 func ValidatorProduct(v *validator.Validator, p *Products) {
@@ -37,6 +37,6 @@ func ValidatorProduct(v *validator.Validator, p *Products) {
 	v.Check(p.Image != "", "image", "must be provided")
 	v.Check(len(p.Image) <= 500, "image", "must be not more than 500 bytes long")
 
-	v.Check(p.Rating.Rate > 0, "rate", "must be positive integer")
-	v.Check(p.Rating.Count > 0, "count", "must be positive integer")
+	// v.Check(p.Rating.Rate > 0, "rate", "must be positive integer")
+	// v.Check(p.Rating.Count > 0, "count", "must be positive integer")
 }

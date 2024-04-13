@@ -37,7 +37,7 @@ func (a *AdminRepository) CreateAdmin(admin models.Admin) error {
 func (a *AdminRepository) GetAdminByEmail(email string) (models.Admin, error) {
 	var admin models.Admin
 
-	stmt := `SELECT * FROM admins WHERE email = ?`
+	stmt := `	`
 	if err := a.db.QueryRow(stmt, email).Scan(&admin.ID, &admin.Email, &admin.Password, &admin.CreatedAt); err != nil {
 		return models.Admin{}, fmt.Errorf("NOT FIND ADMIN THIS EMAIL %s -", email)
 	}

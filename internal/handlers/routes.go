@@ -23,7 +23,8 @@ func (h *Handler) Routes() http.Handler {
 	router.HandlerFunc(http.MethodPatch, "/v1/update/admin", h.AuthMiddleware(h.ChangePassword))
 
 	// Product
-	router.HandlerFunc(http.MethodPost, "/v1/product", h.InsertProduct)
+	router.HandlerFunc(http.MethodPost, "/v1/product", h.AuthMiddleware(h.InsertProduct))
+	router.HandlerFunc(http.MethodPatch, "/v1/product/:id", h.UpdateProduct)
 
 	corsHandler := corsHandler(router)
 

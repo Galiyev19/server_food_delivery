@@ -20,18 +20,18 @@ func NewAdminService(adminRepo admin.IAdminRepository) *AdminService {
 }
 
 type IAdminService interface {
-	CreateAdmin(admin models.Admin) error
+	CreateAdmin(admin models.Admin) (models.AdminResponse, error)
 	GetAdminByEmail(email, password string) (models.Token, error)
 	IdentityMe(token string) (models.AdminResponse, error)
 	GetAdminInfo(email string) (models.AdminResponse, error)
 	ChangePassword(email, oldPassword, newPassword string) error
 }
 
-func (a *AdminService) CreateAdmin(admin models.Admin) error {
+func (a *AdminService) CreateAdmin(admin models.Admin) (models.AdminResponse, error) {
 	id := helpers.GenerateId()                            // generate id
 	hashPass, err := helpers.HashPassword(admin.Password) // hashed password
 	if err != nil {
-		return fmt.Errorf("Create admin hash password")
+		return models.AdminResponse{}, fmt.Errorf("Create admin hash password")
 	}
 
 	adminModel := models.Admin{
@@ -41,9 +41,20 @@ func (a *AdminService) CreateAdmin(admin models.Admin) error {
 	}
 
 	if err := a.AdminRepository.CreateAdmin(adminModel); err != nil {
-		return fmt.Errorf("Service create admin - %v", err)
+		return models.AdminResponse{}, fmt.Errorf("Service create admin - %v", err)
 	}
-	return nil
+
+	token, err := helpers.GenerateToken(admin.Email)
+	if err != nil {
+		return models.AdminResponse{}, err
+	}
+
+	data, err := a.IdentityMe(token)
+	if err != nil {
+		return models.AdminResponse{}, err
+	}
+
+	return data, nil
 }
 
 func (a *AdminService) GetAdminByEmail(email, password string) (models.Token, error) {
