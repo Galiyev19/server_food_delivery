@@ -117,5 +117,23 @@ func (h *Handler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 		h.errorResponse(w, r, http.StatusBadGateway, err.Error())
 	}
 
-	h.writeJson(w, http.StatusOK, envelope{"response": "changed"}, nil)
+	err = h.writeJson(w, http.StatusOK, envelope{"response": "changed"}, nil)
+	if err != nil {
+		h.serverErrorResponse(w, r, err)
+	}
+}
+
+func (h *Handler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
+	id, err := h.readIDParam(r)
+	if err != nil {
+		h.errorResponse(w, r, http.StatusBadRequest, err)
+	}
+
+	err = h.service.Product.DeleteProduct(id)
+	if err != nil {
+		h.errorResponse(w, r, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	h.writeJson(w, http.StatusOK, envelope{"message": "success"}, nil)
 }

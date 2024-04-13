@@ -21,6 +21,7 @@ type IProductRepository interface {
 	GetListProduct() error
 	GetProductById(id int) (models.Products, error)
 	UpdateProduct(product models.Products) error
+	DeleteProduct(id int) error
 }
 
 func (p *ProductRepository) InsertProduct(product models.Products) error {
@@ -58,6 +59,16 @@ func (p *ProductRepository) UpdateProduct(product models.Products) error {
 
 	if _, err := p.db.Exec(stmt, product.Title, product.Description, product.Price, product.Category, product.Image, product.Rating.Rate, product.Rating.Count, product.ID); err != nil {
 		return fmt.Errorf("p.db.Exec %v", err)
+	}
+	return nil
+}
+
+// Delete product
+
+func (a *ProductRepository) DeleteProduct(id int) error {
+	stmt := `DELETE FROM product WHERE id = ?`
+	if _, err := a.db.Exec(stmt, id); err != nil {
+		return fmt.Errorf("Error: %v", err)
 	}
 	return nil
 }

@@ -21,6 +21,7 @@ type IProductsService interface {
 	GetListProduct() error
 	GetProductById(id int) (models.Products, error)
 	UpdateProduct(id int, product models.Products) error
+	DeleteProduct(id int) error
 }
 
 func (p *ProductsService) InsertProduct(product models.Products) error {
@@ -70,5 +71,19 @@ func (p *ProductsService) UpdateProduct(id int, product models.Products) error {
 	if err != nil {
 		return fmt.Errorf("%v", err)
 	}
+	return nil
+}
+
+func (p *ProductsService) DeleteProduct(id int) error {
+	_, err := p.GetProductById(id)
+	if err != nil {
+		return fmt.Errorf("product with id %d nout found", id)
+	}
+
+	err = p.ProductRepository.DeleteProduct(id)
+	if err != nil {
+		return fmt.Errorf("%v", err)
+	}
+
 	return nil
 }
