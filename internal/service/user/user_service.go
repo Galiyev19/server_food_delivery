@@ -2,6 +2,7 @@ package user
 
 import (
 	"fmt"
+
 	"food_delivery/internal/models"
 	"food_delivery/internal/repository/user"
 	"food_delivery/internal/service/helpers"
@@ -30,7 +31,7 @@ func (u *UserService) CreateUser(user models.User) error {
 	if err != nil {
 		return fmt.Errorf("%v", err)
 	}
-	
+
 	userModel := models.User{
 		ID:       id.String(),
 		UserName: user.UserName,

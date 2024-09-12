@@ -2,15 +2,16 @@ package app
 
 import (
 	"fmt"
+	"log"
+	"net/http"
+	"os"
+	"time"
+
 	"food_delivery/internal/config"
 	"food_delivery/internal/handlers"
 	"food_delivery/internal/repository"
 	"food_delivery/internal/service"
 	sqlite "food_delivery/internal/storage"
-	"log"
-	"net/http"
-	"os"
-	"time"
 )
 
 func Run() {
